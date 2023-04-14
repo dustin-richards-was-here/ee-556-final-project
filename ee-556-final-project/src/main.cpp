@@ -25,17 +25,27 @@ uint32_t lastPrintTime = 0;
 constexpr int printPeriod = 5; // ms
 
 // parameters for stepping through different power outputs
-uint32_t lastToggleTime = 0;
-constexpr int togglePeriod = 2000; // ms
-constexpr int NUM_POWERS = 4;
-constexpr int MAX_POWER = 255;
-constexpr int MIN_POWER = 0;
-constexpr float POWER_INCREMENT = float(MAX_POWER - MIN_POWER) / NUM_POWERS;
-float power = MIN_POWER;
+//#define STEP_INCREMENT
+#ifdef STEP_INCREMENT
+  uint32_t lastToggleTime = 0;
+  constexpr int togglePeriod = 2000; // ms
+  constexpr int NUM_POWERS = 4;
+  constexpr int MAX_POWER = 255;
+  constexpr int MIN_POWER = 0;
+  constexpr float POWER_INCREMENT = float(MAX_POWER - MIN_POWER) / NUM_POWERS;
+  float power = MIN_POWER;
+#else
+  uint32_t lastToggleTime = 0;
+  constexpr int togglePeriod = 2000; // ms
+  constexpr int NUM_POWERS = 6;
+  constexpr int POWERS[NUM_POWERS] = {0, 100, 0, 180, 0, 255};
+  float power = POWERS[0];
+  int powerIndex = 0;
+#endif
 
 void setup() {
   motor.init();
-  motor.setSpeed(MIN_POWER);
+  motor.setSpeed(power);
 
   Serial.begin(115200);
   Serial.println("BEGIN");
@@ -70,9 +80,16 @@ void loop() {
 
   // adjust motor power every togglePeriod milliseoncds
   if (millis() - lastToggleTime > togglePeriod) {
-    power += POWER_INCREMENT;
-    if (power > MAX_POWER)
-      power = MIN_POWER;
+    #ifdef STEP_INCREMENT
+      power += POWER_INCREMENT;
+      if (power > MAX_POWER)
+        power = MIN_POWER;
+    #else
+      powerIndex++;
+      if (powerIndex >= NUM_POWERS)
+        powerIndex = 0;
+      power = POWERS[powerIndex];
+    #endif
     motor.setSpeedDirection(int(power));
     lastToggleTime = millis();
   }
