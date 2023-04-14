@@ -13,7 +13,7 @@ constexpr int ENCODER_PIN_B = 3;
 Encoder encoder(ENCODER_PIN_A, ENCODER_PIN_B);
 
 // filtering for the encoder values
-constexpr float filterCutoffFreq = 50; // Hz, I think
+constexpr float filterCutoffFreq = 5; // Hz, I think
 FilterOnePole filter(LOWPASS, filterCutoffFreq);
 
 // timing for velocity calculation from encoder data
@@ -36,7 +36,7 @@ constexpr int printPeriod = 5; // ms
   float power = MIN_POWER;
 #else
   uint32_t lastToggleTime = 0;
-  constexpr int togglePeriod = 2000; // ms
+  constexpr int togglePeriod = 5000; // ms
   constexpr int NUM_POWERS = 6;
   constexpr int POWERS[NUM_POWERS] = {0, 100, 0, 180, 0, 255};
   float power = POWERS[0];
